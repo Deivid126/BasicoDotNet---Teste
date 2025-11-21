@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using Bernhoeft.GRT.Core.Extensions;
 using Bernhoeft.GRT.Teste.Api.Swashbuckle;
+using Bernhoeft.GRT.Teste.Application.Behaviors;
+using Bernhoeft.GRT.Teste.Application.Requests.Commands.v1;
 using Bernhoeft.GRT.Teste.Application.Requests.Queries.v1;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -10,6 +12,7 @@ using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
 
@@ -85,6 +88,11 @@ builder.Services.AddSwaggerGen(options =>
 // Configurando o MediatR.
 builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<GetAvisosRequest>());
 
+builder.Services.AddTransient(
+    typeof(IPipelineBehavior<,>),
+    typeof(ValidationBehavior<,>)
+);
+
 // Adicionar Context de Conexão com Banco de Dados SqlServer GRT.
 builder.Services.AddDbContext();
 
@@ -97,7 +105,7 @@ ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("pt-BR");
 builder.Services.AddFluentValidationAutoValidation(options => options.DisableDataAnnotationsValidation = true)
                 .AddFluentValidationClientsideAdapters()
-                .AddValidatorsFromAssemblyContaining<GetAvisosRequest>();
+                .AddValidatorsFromAssemblyContaining<RemoveAvisoRequest>();
 builder.Services.AddFluentValidationRulesToSwagger();
 
 // Configure Some Options
